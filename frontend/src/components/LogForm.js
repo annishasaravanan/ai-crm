@@ -2,7 +2,6 @@ import { useSelector } from "react-redux";
 
 export default function LogForm() {
     const form = useSelector((state) => state.crm.form);
-    const response = useSelector((state) => state.crm.response);
 
     return (
         <div className="card">
