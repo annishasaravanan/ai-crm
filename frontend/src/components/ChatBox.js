@@ -70,8 +70,9 @@ export default function ChatBox() {
         setInput("");
 
         try {
-            const res = await axios.post("http://localhost:8000/chat", {
-                input_text: text,
+            const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+            const res = await axios.post(`${API_URL}/chat`, {
+                message: text,
                 form_data: form
             });
 
