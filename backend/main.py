@@ -6,8 +6,15 @@ from db.models import Base
 
 app = FastAPI()
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Initialize database tables (with error handling)
+@app.on_event("startup")
+def init_db():
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✓ Database tables created successfully")
+    except Exception as e:
+        print(f"⚠ Database connection failed: {e}")
+        print("  The app will continue, but database operations may fail")
 
 # Enable CORS
 app.add_middleware(
@@ -29,7 +36,7 @@ def health_check():
 @app.post("/chat")
 def chat(data: dict):
     result = graph.invoke({
-        "user_input": data["input_text"],
+        "user_input": data.get("message") or data.get("input_text"),
         "data": data.get("form_data", {})
     })
 
