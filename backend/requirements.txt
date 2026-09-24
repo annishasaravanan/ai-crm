@@ -3,6 +3,8 @@ uvicorn
 sqlalchemy
 psycopg2-binary
 python-dotenv
+python-multipart
+pypdf
 langchain
 langgraph
 langchain-groq

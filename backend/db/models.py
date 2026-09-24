@@ -15,3 +15,8 @@ class Interaction(Base):
     topics = Column(String)
     sentiment = Column(String)
     follow_up = Column(String)
+    outcomes = Column(String)
+    materials = Column(String)
+    ai_suggestions = Column(String)
+    attachment_name = Column(String)
+    attachment_metadata = Column(String)

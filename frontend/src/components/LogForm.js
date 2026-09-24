@@ -1,7 +1,29 @@
 import { useSelector } from "react-redux";
+import axios from "axios";
+import { useState } from "react";
 
 export default function LogForm() {
     const form = useSelector((state) => state.crm.form);
+    const [submitError, setSubmitError] = useState("");
+
+    const handleSubmit = async () => {
+        if (!form || Object.keys(form).length === 0) {
+            return;
+        }
+
+        try {
+            setSubmitError("");
+            const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+            await axios.post(`${API_URL}/submit`, {
+                form_data: form
+            });
+            window.alert("Interaction saved successfully.");
+        } catch (error) {
+            console.error("Submit failed:", error);
+            const detail = error.response?.data?.detail;
+            setSubmitError(detail || "Failed to save interaction. Please try again.");
+        }
+    };
 
     return (
         <div className="card">
@@ -18,7 +40,8 @@ export default function LogForm() {
                 </div>
                 <div className="form-group">
                     <label>Interaction Type</label>
-                    <select value={form.interaction_type || "Meeting"} disabled>
+                    <select value={form.interaction_type || ""} disabled>
+                        <option value="">Select interaction type</option>
                         <option>Meeting</option>
                         <option>Call</option>
                         <option>Email</option>
@@ -73,7 +96,7 @@ export default function LogForm() {
                 <label>Materials Shared / Samples Distributed</label>
                 <div className="section-title" style={{ border: "none", marginBottom: "4px" }}>Materials Shared</div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fcfcfc", border: "1px solid var(--border)", padding: "10px", borderRadius: "6px" }}>
-                    <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>{form.materials || "None."}</span>
+                    <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>{form.materials || ""}</span>
                     <button className="btn-secondary">🔍 Search/Add</button>
                 </div>
             </div>
@@ -117,15 +140,34 @@ export default function LogForm() {
 
             <div className="form-group">
                 <label style={{ color: "#3b82f6" }}>AI Suggested Follow-ups:</label>
-                {form.ai_suggestions ? (
+                {Array.isArray(form.ai_suggestions) && form.ai_suggestions.length > 0 ? (
                     form.ai_suggestions.map((s, i) => <div key={i} className="ai-suggestion">+ {s}</div>)
                 ) : (
-                    <>
-                        <div className="ai-suggestion">+ Schedule follow-up meeting in 2 weeks</div>
-                        <div className="ai-suggestion">+ Send OncoBoost Phase III PDF</div>
-                        <div className="ai-suggestion">+ Add Dr. Sharma to advisory board invite list</div>
-                    </>
+                    <div className="ai-suggestion">No suggestions yet</div>
                 )}
+            </div>
+
+            <div className="form-group" style={{ marginTop: "24px" }}>
+                {submitError && <div role="alert" style={{ color: "#b91c1c", marginBottom: "12px" }}>{submitError}</div>}
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={!form || Object.keys(form).length === 0}
+                    style={{
+                        width: "100%",
+                        padding: "12px 16px",
+                        border: "none",
+                        borderRadius: "10px",
+                        background: "#2563eb",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: "0.95rem",
+                        cursor: !form || Object.keys(form).length === 0 ? "not-allowed" : "pointer",
+                        opacity: !form || Object.keys(form).length === 0 ? 0.6 : 1
+                    }}
+                >
+                    Submit Interaction
+                </button>
             </div>
         </div>
     );
